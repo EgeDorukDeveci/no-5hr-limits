@@ -21,9 +21,10 @@ There is no code here. The cloud routine is the whole system, and this file docu
 | Environment | `Default` (`env_01Mzy6XPEKiKg6GVVSxrUx2Q`, anthropic_cloud) |
 | Model | `claude-haiku-5-5` |
 | Prompt | `hi. Reply with only the word "hi". Do not use any tools.` |
-| Cron (UTC) | `7 2,7,12,17,21 * * *` |
-| Fires at (Istanbul, UTC+3) | 00:07, 05:07, 10:07, 15:07, 20:07 |
+| Cron (UTC) | `12 2,7,12,17,21 * * *` |
+| Fires at (Istanbul, UTC+3) | 00:12, 05:12, 10:12, 15:12, 20:12 |
 | Created | 2026-10-24 |
+| Last changed | 2026-10-24: minute moved from :07 to :12 so pings land just after the window resets |
 
 Routine cron expressions are always in UTC. Turkey has no DST, so the conversion is always +3 hours and never needs seasonal edits.
 
@@ -31,14 +32,14 @@ Routine cron expressions are always in UTC. Turkey has no DST, so the conversion
 
 | Ping | Window already active? | Result | Covered until |
 |---|---|---|---|
-| 00:07 | Yes, the 20:07 window runs until 01:07 | No new window | 01:07 |
-| 01:07 to 05:07 | No | Uncovered, about 4h overnight | |
-| 05:07 | No | New window 05:07 to 10:07 | 10:07 |
-| 10:07 | Just expired | New window 10:07 to 15:07 | 15:07 |
-| 15:07 | Just expired | New window 15:07 to 20:07 | 20:07 |
-| 20:07 | Just expired | New window 20:07 to 01:07 | 01:07 |
+| 00:12 | Yes, the 20:12 window runs until 01:12 | No new window | 01:12 |
+| 01:12 to 05:12 | No | Uncovered, about 4h overnight | |
+| 05:12 | No | New window 05:12 to 10:12 | 10:12 |
+| 10:12 | Just expired | New window 10:12 to 15:12 | 15:12 |
+| 15:12 | Just expired | New window 15:12 to 20:12 | 20:12 |
+| 20:12 | Just expired | New window 20:12 to 01:12 | 01:12 |
 
-24 hours isn't divisible by 5, so one gap each day is only 4 hours (20:07 to 00:07), and the 00:07 ping lands inside an active window. Windows roll continuously from 05:07 to 01:07.
+24 hours isn't divisible by 5, so one gap each day is only 4 hours (20:12 to 00:12), and the 00:12 ping lands inside an active window. Windows roll continuously from 05:12 to 01:12.
 
 If you start a window yourself (say at 09:30), the next ping that lands inside it does nothing, and the first ping after it ends opens a new one. The schedule corrects itself within one cycle.
 
@@ -53,7 +54,7 @@ If you start a window yourself (say at 09:30), the next ping that lands inside i
 
 ## Caveats
 
-- About 4 hours overnight (01:07 to 05:07) are uncovered.
+- About 4 hours overnight (01:12 to 05:12) are uncovered.
 - Each ping uses a small amount of quota. It runs as a Claude Code cloud session, which carries a system prompt, so it costs more than a bare chat message but is still small on Haiku.
 - While you are at your usage limit, runs are rejected until the window resets.
 - A paused or lapsed subscription puts routines on hold. You have to turn them back on yourself.
@@ -65,14 +66,14 @@ If you start a window yourself (say at 09:30), the next ping that lands inside i
 
 1. **Run now, then History:** the newest session should show Haiku replying `hi`.
 2. **Window check:** when you haven't used Claude for 5 hours, run it once, then open claude.ai, Settings, Usage. The current session's reset time should be about 5 hours after the run. If you've used Claude recently, the run lands inside your existing window and proves nothing.
-3. **Schedule check:** after a day, History should show runs near 00:07, 05:07, 10:07, 15:07 and 20:07 Istanbul time, a few minutes late at most.
+3. **Schedule check:** after a day, History should show runs near 00:12, 05:12, 10:12, 15:12 and 20:12 Istanbul time, a few minutes late at most.
 
 ## Troubleshooting
 
 | Symptom | Likely cause | Fix |
 |---|---|---|
 | No runs in History | Routine is off, or the subscription is paused | Turn the switch on, check the subscription |
-| Runs fire 3h off | Cron was entered as local time, not UTC | Use `7 2,7,12,17,21 * * *` |
+| Runs fire 3h off | Cron was entered as local time, not UTC | Use `12 2,7,12,17,21 * * *` |
 | A run shows as rejected | You were at the usage limit | Expected. The next ping after the reset works. |
 | Usage page shows no new window after a run | The run landed inside an existing window, or the concept doesn't hold | Compare the run time with the window end |
 | Haiku no longer available | Model list changed | Switch to the cheapest model offered |
